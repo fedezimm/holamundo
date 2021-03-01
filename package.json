@@ -1,0 +1,16 @@
+{
+  "name": "holamundo",
+  "version": "1.0.0",
+  "description": "an example app",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "author": "Federico Zimmermann",
+  "license": "ISC",
+  "dependencies": {
+    "nodemon": "^2.0.7",
+    "phone": "^2.4.21"
+  }
+}

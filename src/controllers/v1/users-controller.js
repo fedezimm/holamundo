@@ -105,7 +105,7 @@ const getUserById = (req, res) => {
     if (index !== -1){
         res.send({data:users[index]})
     }else{
-        res.send({})
+        res.status(404).send({})
     }
 }
 

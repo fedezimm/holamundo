@@ -7,6 +7,7 @@ const createRoutesV1 = (app) => {
     app.get('/api/v1/users/:userId',usersController.getUserById);
     app.get('/api/v1/products',productsController.getProducts);
     app.get('/api/v1/products/:productId',productsController.getProductById);
+    app.post('/api/v1/products/create',productsController.createProduct);
 };
 
 module.exports = createRoutesV1;

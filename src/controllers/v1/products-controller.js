@@ -73,7 +73,21 @@ const getProductById = (req, res) => {
     }
 }
 
+const createProduct = (req, res) => {
+    const { name , year, color, pantone_value} = req.body;
+    const newProduct = {
+        id: products.length,
+        name, //name: name
+        year,
+        color,
+        pantone_value
+    };
+    products.push(newProduct);
+    res.send(newProduct);
+}
+
 module.exports = {
     getProducts,
-    getProductById
+    getProductById,
+    createProduct
 }

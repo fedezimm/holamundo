@@ -1,8 +1,9 @@
-const usersController = require('../../controllers/v1/users-controller');
-const productsController = require('../../controllers/v1/products-controller');
+import {Application} from 'express'
 
+import * as usersController from '../../controllers/v1/users-controller';
+import * as productsController from '../../controllers/v1/products-controller';
 
-const createRoutesV1 = (app) => {
+const createRoutesV1 = (app:Application):void => {
     app.get('/api/v1/users',usersController.getUsers);
     app.get('/api/v1/users/:userId',usersController.getUserById);
     app.get('/api/v1/products',productsController.getProducts);
@@ -15,4 +16,4 @@ const createRoutesV1 = (app) => {
 
 };
 
-module.exports = createRoutesV1;
+export default createRoutesV1

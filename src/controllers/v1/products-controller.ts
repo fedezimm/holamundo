@@ -105,27 +105,39 @@ const partialUpdateProduct = async(req:Request, res:Response):Promise<void> => {
   }
 };
 
-// const updateProductAndNotify = (req:Request, res:Response):void => {
-//   const id:number = parseInt(req.params.productId);
-//   const { client, data } = req.body;
-//   const { name, year, color, pantone_value }:Product = data;
-//   const index:number = products.findIndex((item) => item.id === id);
-//   if (index !== -1) {
-//     const product = products[index];
+const updateProductAndNotify = async(
+  req:Request, 
+  res:Response
+  ):Promise<void> => {
+  try{
+    const id:string = req.params.productId;
+    validateId(id);
+    const { client, data } = req.body;
+    const { name, year, price, description, user } = data;
+    if(user){
+      validateId(user);
+    }
+    
+    const product = await Products.findById(id)
+    
+    if (product) {
 
-//     products[index] = {
-//       id: id,
-//       name: name || product.name,
-//       year: year || product.year,
-//       color: color || product.color,
-//       pantone_value: pantone_value || product.pantone_value,
-//     };
+      product.name = name || product.name;
+      product.year = year || product.year;
+      product.price = price || product.price;
+      product.description = description || product.description;
+      product.user = user || product.user;
 
-//     res.send({ data: products[index], message: `Email sent to ${client}` });
-//   } else {
-//     res.status(404).send({});
-//   }
-// };
+      await product.save();
+
+      res.send({ data: product, message: `Email sent to ${client}` });
+    } else {
+      res.status(404).send({});
+    }
+  }catch(e){
+    sendError(res, e)
+  }
+};
 
 const deleteProductById = async (req:Request, res:Response):Promise<void> => {
   try{
@@ -151,7 +163,7 @@ export {
   createProduct,
   updateProduct,
   partialUpdateProduct,
-  //updateProductAndNotify,
+  updateProductAndNotify,
   deleteProductById
 };
 

@@ -1,6 +1,7 @@
 
 import { Request, Response } from 'express';
 import Users from '../../db/schemas/user';
+import Products from '../../db/schemas/product';
 import bcrypt from 'bcrypt';
 import { sendError, validateId } from '../../utils/responseUtils';
 
@@ -25,6 +26,25 @@ const getUserById = async (req:Request, res:Response):Promise<void> => {
   }
 };
 
+const deleteById = async(
+  req: Request,
+  res: Response
+  ): Promise<void> => {
+    try{
+      const {userId} = req.params;
+      validateId(userId);
+      const user = await Users.findByIdAndDelete(userId);
+      if(user){
+        await Products.deleteMany({ user: user._id });
+        res.send("Usuario eliminado y así también todos sus productos");
+      }else{
+        res.status(404).send({})
+      }
+    }catch(e){
+      sendError(res, e);
+    }
+
+  }
 
 const createUser = async (req:Request, res:Response):Promise<void> =>{
   try{
@@ -46,6 +66,7 @@ const createUser = async (req:Request, res:Response):Promise<void> =>{
 export {
     getUsers,
     getUserById,
-    createUser
+    createUser,
+    deleteById
 }
 

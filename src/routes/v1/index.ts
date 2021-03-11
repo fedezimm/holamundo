@@ -13,7 +13,7 @@ const createRoutesV1 = (app:Application):void => {
     app.put('/api/v1/products/:productId',productsController.updateProduct);    
     app.patch('/api/v1/products/:productId',productsController.partialUpdateProduct);    
     // app.post('/api/v1/products/:productId/notify-client',productsController.updateProductAndNotify);
-    // app.delete('/api/v1/products/:productId',productsController.deleteProductById);
+    app.delete('/api/v1/products/:productId',productsController.deleteProductById);
 
 };
 

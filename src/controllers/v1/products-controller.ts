@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import Products from '../../db/schemas/product';
-import {Types} from 'mongoose';
 import {sendError , validateId} from '../../utils/responseUtils';
 
 
@@ -66,7 +65,7 @@ const updateProduct = async (req:Request, res:Response):Promise<void> => {
   try{
     const id:string = req.params.productId;
     validateId(id);
-    const { name, year, price, description, user } = req.body;
+    const { name, year, price, description} = req.body;
     
     const updatedProduct = await Products.findOneAndUpdate(
       {

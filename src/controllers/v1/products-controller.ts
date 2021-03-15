@@ -5,7 +5,9 @@ import {sendError , validateId} from '../../utils/responseUtils';
 
 
 const getProducts = async (req:Request, res:Response): Promise<void> => {
-  const products = await Products.find().populate({
+  const products = await Products.find({
+    user:req.session.userId
+  }).populate({
     path:'user',
     select:{
       password:0,
@@ -17,17 +19,25 @@ const getProducts = async (req:Request, res:Response): Promise<void> => {
 
 const getProductById = async(req:Request, res:Response):Promise<void> => {
   try{
+
     const { productId } = req.params;
     
     validateId(productId);
-    const product = await Products.findById(productId).populate({
+    const product = await Products.findOne({
+      _id: productId,
+      user:req.session.userId
+    }).populate({
       path:'user',
       select:{
         password:0,
         __v:0
       }
     }).select({__v:0});
-    res.send(product); 
+    if(product){
+      res.send(product);
+    }else{
+      res.status(401).send('You are not authorized to see this product')
+    } 
 
   }catch(e){
     sendError(res, e);
@@ -36,14 +46,15 @@ const getProductById = async(req:Request, res:Response):Promise<void> => {
 
 const createProduct = async (req:Request, res:Response):Promise<void> => {
   try{
-    const { name, year, price, description, user } = req.body;
-    validateId(user);
+    const {userId} =req.session;
+    const { name, year, price, description } = req.body;
+    validateId(userId);
     const product = await Products.create({
       name,
       year,
       price,
       description,
-      user
+      user: userId
     });
     res.send(product);
   }catch(e){
@@ -56,16 +67,19 @@ const updateProduct = async (req:Request, res:Response):Promise<void> => {
     const id:string = req.params.productId;
     validateId(id);
     const { name, year, price, description, user } = req.body;
-    if(user){
-      validateId(user);
-    }
-    const updatedProduct = await Products.findByIdAndUpdate(id,{
-      name,
-      year,
-      price,
-      description,
-      user
-    });
+    
+    const updatedProduct = await Products.findOneAndUpdate(
+      {
+        _id:id,
+        user:req.session.userId
+      },
+      {
+        name,
+        year,
+        price,
+        description,
+        user:req.session.userId
+      });
 
     if (updatedProduct) {
       res.send({data: 'OK'});
@@ -81,18 +95,17 @@ const partialUpdateProduct = async(req:Request, res:Response):Promise<void> => {
   try{
     const id:string = req.params.productId;
     validateId(id);
-    const { name, year, price, description, user } = req.body;
-    if(user){
-      validateId(user);
-    }
-    const productToUpdate = await Products.findById(id).select({__v:0});
+    const { name, year, price, description} = req.body;
+    const productToUpdate = await Products.findOne({
+      _id: id,
+      user:req.session.userId
+    }).select({__v:0});
 
     if (productToUpdate) {
       productToUpdate.name = name||productToUpdate.name;
       productToUpdate.year = year||productToUpdate.year;
       productToUpdate.price = price||productToUpdate.price;
       productToUpdate.description = description||productToUpdate.description;
-      productToUpdate.user = user||productToUpdate.user;
 
       await productToUpdate.save();
       
@@ -113,12 +126,9 @@ const updateProductAndNotify = async(
     const id:string = req.params.productId;
     validateId(id);
     const { client, data } = req.body;
-    const { name, year, price, description, user } = data;
-    if(user){
-      validateId(user);
-    }
+    const { name, year, price, description} = data;
     
-    const product = await Products.findById(id)
+    const product = await Products.findOne({id:id, user:req.session.userId})
     
     if (product) {
 
@@ -126,7 +136,6 @@ const updateProductAndNotify = async(
       product.year = year || product.year;
       product.price = price || product.price;
       product.description = description || product.description;
-      product.user = user || product.user;
 
       await product.save();
 
@@ -144,7 +153,10 @@ const deleteProductById = async (req:Request, res:Response):Promise<void> => {
     const productId:string = req.params.productId;
     validateId(productId);
 
-    const deleted = await Products.deleteOne({_id: Types.ObjectId(productId)});
+    const deleted = await Products.deleteOne({
+      _id: productId, 
+      user:req.session.userId
+    });
     console.log("deleted",deleted);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     if (deleted.deletedCount! > 0){

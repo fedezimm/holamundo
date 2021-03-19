@@ -46,6 +46,7 @@ const getProductById = async(req:Request, res:Response):Promise<void> => {
 const createProduct = async (req:Request, res:Response):Promise<void> => {
   try{
     const {userId} =req.session;
+    console.log(req.body);
     const { name, year, price, description } = req.body;
     validateId(userId);
     const product = await Products.create({
@@ -150,7 +151,7 @@ const updateProductAndNotify = async(
 const deleteProductById = async (req:Request, res:Response):Promise<void> => {
   try{
     const productId:string = req.params.productId;
-    validateId(productId);
+    //validateId(productId);
 
     const deleted = await Products.deleteOne({
       _id: productId, 
